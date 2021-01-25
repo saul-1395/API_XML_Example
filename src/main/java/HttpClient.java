@@ -13,20 +13,29 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Scanner;
 
 public class HttpClient {
-    String s;
+    private String xml;
+    private String url = "https://speller.yandex.net/services/spellservice/checkText?text=";
+    private String res;
+    private CloseableHttpResponse httpRes = null;
 
-    void run() {
-        CloseableHttpResponse httpRes = null;
+    //вводим слово
+    private void inputWord() {
+        System.out.println("Введите слово: ");
+        Scanner in = new Scanner(System.in);
+        res = in.nextLine().replaceAll(" ", "+");
+        run();
+    }
+
+    //запускаем get запрос и сохраняем хмл ответ ввиде String
+    private void run() {
         try {
             CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpGet httpGet = new HttpGet("https://speller.yandex.net/services/spellservice/checkText?text=синхрофозотрон+в+дубне");
+            HttpGet httpGet = new HttpGet(url + res);
             httpRes = httpclient.execute(httpGet);
-            s = EntityUtils.toString(httpRes.getEntity());
-           
-
-            System.out.println(s);
+            xml = EntityUtils.toString(httpRes.getEntity());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,17 +46,16 @@ public class HttpClient {
                 ioException.printStackTrace();
             }
         }
-
-
     }
 
-    public Document stringToDom()
+    //парсим String в документ
+    public Document getXML()
             throws SAXException, ParserConfigurationException, IOException {
-        run();
+        inputWord();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(new InputSource(new StringReader(s)));
+        return builder.parse(new InputSource(new StringReader(xml)));
     }
 
 
